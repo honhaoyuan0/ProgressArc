@@ -1,3 +1,9 @@
+<script setup>
+import Home from './views/Home.vue';
+</script>
+
 <template>
-  <h1>Tech Stack Generator!</h1>
+  <div class="flex h-screen">
+    <Home />
+  </div>
 </template>
