@@ -90,8 +90,6 @@ def register():
 
 @app.route('/get_current_user', methods=['GET'])
 def get_current_user():
-    print(session)
-    print('logged_in' in session)
     if 'logged_in' in session:
         return jsonify({
             'message': session['user'],
