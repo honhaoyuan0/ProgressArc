@@ -22,6 +22,7 @@ def index():
     return 'Index Page'
 
 def start_session(user):
+    del user['password']
     session['logged_in'] = True
     session['user'] = user
 
@@ -86,6 +87,21 @@ def register():
         'error': 'Register failed',
         'status': 'failed',
     }), 500
+
+@app.route('/get_current_user', methods=['GET'])
+def get_current_user():
+    print(session)
+    print('logged_in' in session)
+    if 'logged_in' in session:
+        return jsonify({
+            'message': session['user'],
+            'status': 'success'
+        })
+    else:
+        return jsonify({
+            'message': None,
+            'user': 'failed'
+        }), 401
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
