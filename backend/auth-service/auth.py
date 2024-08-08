@@ -10,6 +10,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config['MONGO_URI'] = os.getenv('MONGO_URI')
+app.secret_key = os.getenv('FLASK_SECRET_KEY')
 CORS(app)
 
 # Setup connection to MongoDB

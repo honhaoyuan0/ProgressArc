@@ -52,10 +52,11 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3. Beg the developers to give you the DB connection string, then put it in a `.env` file in the project root:
+3. Beg the developers to give you the necessary secrets, then put it in a `.env` file in the project root:
 
 ```
 MONGO_URI=<SECRET>
+FLASK_SECRET_KEY=<SECRET>
 ```
 
 4. Run the `auth-service` microservice:
