@@ -21,13 +21,29 @@ db = mongodb_client.db
 def index():
     return 'Index Page'
 
-@app.route('/login', methods=['GET', 'POST'])
+def start_session(user):
+    session['logged_in'] = True
+    session['user'] = user
+
+@app.route('/login', methods=['POST'])
 def login():
     data = request.json
     email = data.get('email')
     password = data.get('password')
-    # To do
-    return 'Login'
+    
+    user = db.users.find_one({'email': email})
+
+    if user and pbkdf2_sha256.verify(password, user['password']):
+        start_session(user)
+        return jsonify({
+            'message': "Logged in successfully",
+            'status': 'success',
+        }), 200
+
+    return jsonify({
+        'error': 'Invalid login credentials',
+        'status': 'failed',
+    }), 401
 
 @app.route('/logout')
 def logout():
@@ -60,8 +76,7 @@ def register():
         'password': password
     }
     if db.users.insert_one(user):
-        session['logged_in'] = True
-        session['user'] = user
+        start_session(user)
         return jsonify({
             'message': "Account registered successfully",
             'status': 'success',
