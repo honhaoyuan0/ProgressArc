@@ -1,8 +1,10 @@
 from flask_cors import CORS
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, redirect, request, session
 from flask_pymongo import PyMongo
 from dotenv import load_dotenv
 import os
+from passlib.hash import pbkdf2_sha256
+import uuid
 
 load_dotenv()
 
@@ -26,32 +28,48 @@ def login():
     # To do
     return 'Login'
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/')
+
 @app.route('/register', methods=['POST'])
 def register():
-    if request.is_json:
-        data = request.get_json()
-        email = data.get('email')
-        password = data.get('password')
-        confirm_password = data.get('confirm_password')
-        
-        # Check if email already exists
-        existing_user = db.users.find_one({'email': email})
-        if existing_user:
-            return jsonify({'message': 'Email already exists', 'status': 'fail'}), 400
-        
-        # Insert new user
-        db.users.insert_one({
-            'email': email,
-            'password': password
-        })
-        
-        response_data = {
+    if not request.is_json:
+        return jsonify({'error': 'Unsupported Media Type, content type must be application/json'}), 415
+    
+    data = request.get_json()
+
+    _id = uuid.uuid4().hex
+    email = data.get('email')
+    password = pbkdf2_sha256.encrypt(data.get('password'))
+    
+    # Check if email already exists
+    existing_user = db.users.find_one({'email': email})
+    if existing_user:
+        return jsonify({
+            'error': 'Email already exists',
+            'status': 'failed',
+        }), 400
+    
+    # Insert new user
+    user = {
+        '_id': _id,
+        'email': email,
+        'password': password
+    }
+    if db.users.insert_one(user):
+        session['logged_in'] = True
+        session['user'] = user
+        return jsonify({
             'message': "Account registered successfully",
             'status': 'success',
-        }
-        return jsonify(response_data), 200
-    else:
-        return jsonify({'error': 'Unsupported Media Type, content type must be application/json'}), 415
+        }), 200
+    
+    return jsonify({
+        'error': 'Register failed',
+        'status': 'failed',
+    }), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
