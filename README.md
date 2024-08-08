@@ -30,7 +30,7 @@ npm run build
 
 ## Running the Backend
 
-At the project directory, create and activate a virtual environment:
+1. At the project directory, create and activate a virtual environment:
 
 - For Windows,
 
@@ -46,13 +46,19 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-Then, install the required Python dependencies:
+2. Install the required Python dependencies:
 
 ```sh
 pip install -r requirements.txt
 ```
 
-Finally, run the `auth-service` microservice:
+3. Beg the developers to give you the DB connection string, then put it in a `.env` file in the project root:
+
+```
+MONGO_URI=<SECRET>
+```
+
+4. Run the `auth-service` microservice:
 
 ```sh
 python backend/auth-service/auth.py
