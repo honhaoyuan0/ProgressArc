@@ -1,9 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_pymongo import PyMongo
+from dotenv import load_dotenv
+import os
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
-app.config['MONGO_URI'] = "mongodb+srv://chinherng:G6gzqDELwzDdj7bi@cluster0.o0xas2l.mongodb.net/progressArc?retryWrites=true&w=majority&appName=Cluster0"
+app.config['MONGO_URI'] = os.getenv("MONGO_URI")
 CORS(app)
 
 # Setup connection to MongoDB
