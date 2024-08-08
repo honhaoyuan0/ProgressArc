@@ -94,7 +94,7 @@ def get_current_user():
         return jsonify({
             'message': session['user'],
             'status': 'success'
-        })
+        }), 200
     else:
         return jsonify({
             'message': None,

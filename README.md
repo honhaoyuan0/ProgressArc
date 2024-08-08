@@ -52,7 +52,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3. Beg the developers to give you the necessary secrets, then put it in a `.env` file in the project root:
+3. Beg the developers to give you the necessary secrets, then put them in a `.env` file in the project root:
 
 ```
 MONGO_URI=<SECRET>
