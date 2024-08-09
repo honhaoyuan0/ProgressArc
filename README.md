@@ -27,3 +27,42 @@ npm run dev
 ```sh
 npm run build
 ```
+
+## Running the Backend
+
+1. At the project directory, create and activate a virtual environment:
+
+- For Windows,
+
+```sh
+python -m venv .venv
+.venv/Scripts/activate
+```
+
+- For MacOS/Linux,
+
+```sh
+python -m venv .venv
+source .venv/bin/activate
+```
+
+2. Install the required Python dependencies:
+
+```sh
+pip install -r requirements.txt
+```
+
+3. Beg the developers to give you the necessary secrets, then put them in a `.env` file in the project root:
+
+```
+MONGO_URI=<SECRET>
+FLASK_SECRET_KEY=<SECRET>
+```
+
+4. Run the `auth-service` microservice:
+
+```sh
+python backend/auth-service/auth.py
+```
+
+A development Flask server will start at port 5000.
