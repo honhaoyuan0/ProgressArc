@@ -43,9 +43,17 @@ import axios from 'axios';
 const email = ref('')
 const password = ref('')
 
-const HandleLogin = () => {
+const HandleLogin = async () => {
   // To do
-  
-  console.log(email.value, password.value);
+  try {
+    const response = await axios.post('http://localhost:3000/login', {
+      email: email.value,
+      password: password.value
+    });
+    
+  } catch (error) {
+    console.error(error);
+    alert('Wrong email or password. Please try again later.');
+  }
 };
 </script>
