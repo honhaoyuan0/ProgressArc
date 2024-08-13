@@ -6,9 +6,9 @@
       </div>
       <!-- Prompt -->
       <div class="bg-zinc-900 relative flex h-full max-w-full flex-1 flex-col overflow-hidden">
-          <Prompt />
+          <Prompt :user="authStore.user" />
       </div>
-      <BlurOverlay v-if="!isLoggedIn" />
+      <BlurOverlay v-if="!authStore.isLoggedIn" />
   </div>
 </template>
 
@@ -17,8 +17,14 @@ import Prompt from '@/components/Prompt.vue';
 import Sidebar from '@/components/Sidebar.vue';
 import { ref, onMounted } from 'vue';
 import BlurOverlay from '@/components/BlurOverlay.vue';
+import { useAuthStore } from '@/stores/auth';
 
-const isLoggedIn = ref(false);
+const props = defineProps({
+  user: Object
+});
+
+const authStore = useAuthStore();
+
 
 // Testing data
 const projects = ref([
@@ -40,15 +46,14 @@ onMounted(async () => {
     if (response.status === 200) {
       const data = await response.json();
       if (data.status === 'success') {
-        isLoggedIn.value = true;
+        authStore.setLoginStatus(true, data.user);
       }
     }
     else if (response.status === 401) {
-      isLoggedIn.value = false;
+      authStore.setLoginStatus(false, null);
     }
   } catch(error) {
     console.error(error);
-    isLoggedIn.value = false;
   }
 
   // Fetch projects from the API (To - Do)

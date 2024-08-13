@@ -31,20 +31,20 @@ def login():
     data = request.json
     email = data.get('email')
     password = data.get('password')
-    
     user = db.users.find_one({'email': email})
 
     if user and pbkdf2_sha256.verify(password, user['password']):
         start_session(user)
         return jsonify({
             'message': "Logged in successfully",
+            'user': session['user'],
             'status': 'success',
         }), 200
-
-    return jsonify({
-        'error': 'Invalid login credentials',
-        'status': 'failed',
-    }), 401
+    else:
+        return jsonify({
+            'message': 'Invalid login credentials',
+            'status': 'failed',
+        }), 401
 
 @app.route('/logout')
 def logout():
@@ -91,15 +91,18 @@ def register():
 @app.route('/get_current_user', methods=['GET'])
 def get_current_user():
     if 'logged_in' in session:
-        return jsonify({
-            'message': session['user'],
+        response = make_response(jsonify({
+            'user': session['user'],
             'status': 'success'
-        }), 200
+        }), 200)
     else:
-        return jsonify({
+        response = make_response(jsonify({
             'message': None,
-            'user': 'failed'
-        }), 401
+            'status': 'failed'
+        }), 401)
+    
+    response.headers['Content-Type'] = 'application/json'
+    return response
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

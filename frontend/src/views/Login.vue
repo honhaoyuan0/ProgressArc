@@ -39,18 +39,33 @@
 <script setup>
 import { ref } from 'vue';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 
 const email = ref('')
 const password = ref('')
+const router = useRouter();
+const authStore = useAuthStore();
 
 const HandleLogin = async () => {
   // To do
   try {
-    const response = await axios.post('http://localhost:3000/login', {
+    const response = await axios.post('http://localhost:5000/login', {
       email: email.value,
       password: password.value
     });
-    
+    if (response.status === 200) {
+      const data = response.data;
+      if (data.status === 'success') {
+        authStore.setLoginStatus(true, data.user);
+        router.push({
+          name: 'Home',
+          params: {
+            user: data.user
+          }
+        });
+      }
+    }
   } catch (error) {
     console.error(error);
     alert('Wrong email or password. Please try again later.');
