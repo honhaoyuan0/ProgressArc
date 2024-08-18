@@ -62,7 +62,8 @@ FLASK_SECRET_KEY=<SECRET>
 4. Run the `auth-service` microservice:
 
 ```sh
-python backend/auth-service/auth.py
+cd backend
+flask --app auth_service/auth.py --debug run
 ```
 
 A development Flask server will start at port 5000.
