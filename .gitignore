@@ -31,3 +31,5 @@ coverage
 
 .venv/
 .env
+
+backend/*/__pycache__
