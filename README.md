@@ -59,7 +59,7 @@ MONGO_URI=<SECRET>
 FLASK_SECRET_KEY=<SECRET>
 ```
 
-4. Run the `auth-service` microservice:
+4. Run the `auth_service` microservice:
 
 ```sh
 cd backend
