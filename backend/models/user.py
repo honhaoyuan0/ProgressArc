@@ -1,4 +1,4 @@
-from auth_service.auth import db
+from db.db import db
 from flask import jsonify, make_response, redirect, request, session
 from passlib.hash import pbkdf2_sha256
 import uuid

@@ -30,7 +30,7 @@ npm run build
 
 ## Running the Backend
 
-1. At the project directory, create and activate a virtual environment:
+1. In the `backend` directory, create and activate a virtual environment:
 
 - For Windows,
 
@@ -52,18 +52,18 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3. Beg the developers to give you the necessary secrets, then put them in a `.env` file in the project root:
+3. Beg the developers to give you the necessary secrets, then put them in a `.env` file in the `backend` directory:
 
 ```
 MONGO_URI=<SECRET>
 FLASK_SECRET_KEY=<SECRET>
 ```
 
-4. Run the `auth_service` microservice:
+4. Run the microservices (with multiple terminals):
 
 ```sh
-cd backend
 flask --app auth_service/auth.py --debug run
+flask --app project_service/project.py --debug run -p 5001
 ```
 
-A development Flask server will start at port 5000.
+The authentication service will start at port 5000, while the project service will start at port 5001.

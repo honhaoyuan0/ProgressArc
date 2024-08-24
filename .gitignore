@@ -29,7 +29,7 @@ coverage
 
 *.tsbuildinfo
 
-.venv/
-.env
+/backend/.venv/
+/backend/.env
 
 backend/*/__pycache__

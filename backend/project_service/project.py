@@ -9,8 +9,4 @@ app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 CORS(app)
 
-from auth_service import routes
-
-@app.route('/')
-def index():
-    return 'Index Page'
+from project_service import routes
