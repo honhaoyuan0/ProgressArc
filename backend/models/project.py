@@ -60,6 +60,15 @@ class Project:
     def update_project(self):
         if not request.is_json:
             return jsonify({'error': 'Unsupported Media Type, content type must be application/json'}), 415
+        
+        user = db.users.find_one({"_id": request.json.get('user_id')})
+
+        for project in user.get('projects', []):
+            if project.get('name') == request.json.get('name'):
+                return jsonify({
+                    'error': f"Project name '{request.json.get('name')}' already exists.",
+                    'status': 'failed',
+                }), 400
 
         if (db.users.update_one(
             {'_id': request.json.get('user_id'), 'projects._id': request.json.get('project_id')},
@@ -79,7 +88,7 @@ class Project:
         if not request.is_json:
             return jsonify({'error': 'Unsupported Media Type, content type must be application/json'}), 415
         
-        user = db.users.find_one({"_id": request.json.get('_id')})
+        user = db.users.find_one({"_id": request.json.get('user_id')})
 
         if not user:
             return jsonify({
@@ -88,8 +97,8 @@ class Project:
         }), 500
 
         for project in user.get('projects', []):
-            if project.get('name') == request.json.get('name'):
-                db.users.update_one({'_id': request.json.get('_id')}, {'$pull': {'projects': {'name': request.json.get('name')}}})
+            if project.get('_id') == request.json.get('project_id'):
+                db.users.update_one({'_id': request.json.get('user_id')}, {'$pull': {'projects': {'_id': request.json.get('project_id')}}})
                 return jsonify({
                     'message': "Project deleted successfully",
                     'status': 'success',
