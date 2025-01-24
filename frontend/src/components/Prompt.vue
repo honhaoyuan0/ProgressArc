@@ -12,8 +12,14 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue';
+
 const props = defineProps({
   user: Object
+});
+
+onMounted(() => {
+  // console.log(user);
 });
 // Alot to do
 </script>

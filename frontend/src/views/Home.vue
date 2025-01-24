@@ -1,12 +1,13 @@
 <template>
   <div class="relative z-0 flex h-full w-full overflow-hidden">
     <!-- SideBar -->
-      <div class="bg-black flex-shrink-0 overflow-x-hidden" style="width: 260px;">
-          <Sidebar :projects="projects" />
+      <div class="bg-black flex-shrink-0 overflow-x-hidden" style="width:260px;">
+          <Sidebar :projects="authStore.user? authStore.user.projects : []" @selectProjects="setComponents" />
       </div>
       <!-- Prompt -->
-      <div class="bg-zinc-900 relative flex h-full max-w-full flex-1 flex-col overflow-hidden">
-          <Prompt :user="authStore.user" />
+      <div class="bg-zinc-900 relative flex h-full max-w-full flex-1 flex-col overflow-auto" style="width:100vw">
+          <Prompt v-if="components.length == 0" :user="authStore.user" />
+          <Project v-else :components="components"/>
       </div>
       <BlurOverlay v-if="!authStore.isLoggedIn" />
   </div>
@@ -15,16 +16,25 @@
 <script setup>
 import Prompt from '@/components/Prompt.vue';
 import Sidebar from '@/components/Sidebar.vue';
-import { ref, onMounted } from 'vue';
+import Project from '@/components/Project.vue';
 import BlurOverlay from '@/components/BlurOverlay.vue';
+import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import { useProjectStore } from '@/stores/project';
 
 const props = defineProps({
   user: Object
 });
-
 const authStore = useAuthStore();
+const projectStore = useProjectStore();
+const components = ref([])
+const selectedProjectIndex = ref(null);
 
+const setComponents = (payload) => {
+  components.value = payload.components;
+  selectedProjectIndex.value = payload.index;
+  projectStore.setProject(authStore.user.projects[payload.index]);
+};
 
 // Testing data
 const projects = ref([
@@ -47,6 +57,7 @@ onMounted(async () => {
       const data = await response.json();
       if (data.status === 'success') {
         authStore.setLoginStatus(true, data.user);
+        console.log("User data:", data.user);
       }
     }
     else if (response.status === 401) {

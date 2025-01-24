@@ -1,7 +1,7 @@
 {
   "name": "progressarc",
   "version": "0.0.0",
-  "private": true,
+  "private": false,
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,8 @@
     "axios": "^1.7.3",
     "pinia": "^2.2.1",
     "vue": "^3.4.29",
-    "vue-router": "^4.0.13"
+    "vue-router": "^4.0.13",
+    "vue3-org-chart": "^0.2.4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.5",

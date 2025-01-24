@@ -3,13 +3,13 @@
   <div class="text-white h-full w-[260px]">
     <div class="p-4 flex-grow">
       <h2 class="text-3xl font-bold mb-4">Projects</h2>
-      <div v-if="projects.length === 0" class="flex items-center h-full">
-        <p class="text-center">No projects available. Please add a project to get started!</p>
+      <div v-if="projects.length === 0" class="flex items-center justify-center h-full">
+        <p class="text-center">No projects available. Please start a project</p>
       </div>
       <ul v-else>
         <li v-for="(project, index) in projects" :key="index" class="mb-2">
             <!-- CRUD function to be determine -->
-          <button @click="goToProject(project.id)" class="w-full text-left p-2 hover:bg-gray-700 rounded"> 
+          <button @click="goToProject(project.components, index)" class="w-full text-left p-2 hover:bg-gray-700 rounded"> 
             {{ project.name }}
           </button>
         </li>
@@ -20,13 +20,15 @@
 
 <script setup>
 const props = defineProps({
-    projects: {
-        type: Array,
-        required: true
-    }
+  projects: {
+      type: Array,
+      default: () => []
+  },
 })
 
-const goToProject = () => {
-//   To do
+const emit = defineEmits(['selectProjects']);
+
+const goToProject = (projectComponents, index) => {
+  emit('selectProjects', {components: projectComponents, index: index});
 };
 </script>
