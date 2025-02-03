@@ -19,16 +19,21 @@
 </template>
 
 <script setup>
+import { useAuthStore } from '@/stores/auth';
+import { useProjectStore } from '@/stores/project';
+
 const props = defineProps({
   projects: {
       type: Array,
       default: () => []
   },
 })
-
+const authStore = useAuthStore();
+const projectStore = useProjectStore();
 const emit = defineEmits(['selectProjects']);
 
 const goToProject = (projectComponents, index) => {
+  projectStore.setProject(authStore.user.projects[index]);
   emit('selectProjects', {components: projectComponents, index: index});
 };
 </script>

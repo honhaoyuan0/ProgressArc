@@ -57,6 +57,32 @@ class Project:
             'status': 'success',
         }), 200
 
+    def get_project_by_id(self):
+        user_id = request.args.get('user_id')
+        project_id = request.args.get('project_id')
+
+        if not user_id or not project_id:
+            return jsonify({'error': 'Missing user_id or project_id'}), 400
+
+        user = db.users.find_one({"_id": user_id})
+
+        if not user:
+            return jsonify({
+                'error': 'User not found',
+                'status': 'failed',
+            }), 500
+        
+        project = next((proj for proj in user.get('projects', []) if proj.get('_id') == project_id), None)
+
+        if project:
+            return jsonify(project['components']), 200
+        
+        else:
+            return jsonify({
+                'error': 'Project not found',
+                'status': 'failed',
+            }), 404
+
     def update_project(self):
         if not request.is_json:
             return jsonify({'error': 'Unsupported Media Type, content type must be application/json'}), 415

@@ -15,7 +15,7 @@
          <!-- https://raw.githubusercontent.com/bumbeishvili/sample-data/main/sample.json -->
         <vue3-org-chart minimap
                         @on-ready="initVue3OrgChart"
-                        json="https://gist.githubusercontent.com/honhaoyuan0/12f11fb64521b7c73ad12fcf454b6d03/raw/84d1f97fe26481ec4654460cd74d3113156a56e8/.json">
+                        :json=projectJsonUrl>
           <template #node="{item, children, open, toggleChildren}">
             <div class="node-item justify-center relative" :class="{'active': open, 'passive' : !open }">
               <div class="temp-container">
@@ -73,11 +73,14 @@
   </template>
   
 <script setup>
-import { ref } from "vue";
+import { onBeforeMount, onMounted, ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useProjectStore } from "@/stores/project";
+import axios from "axios";
 
 const vocApi = ref(null);
+const projectJsonUrl = ref("");
+
 const initVue3OrgChart = ({ api }) => {
   vocApi.value = api;
 }
@@ -86,11 +89,12 @@ const projectStore = useProjectStore();
 
 const props = defineProps({
   components: {
-      type: Array,
-      default: () => []
+    type: Array,
+    default: () => []
   },
-
 })
+
+projectJsonUrl.value = `http://localhost:5001/get_project_by_id?user_id=${authStore.user._id}&project_id=${projectStore.project._id}`;
 
 const deleteTask = (taskId) => {
   emit('delete-task', taskId);
@@ -101,6 +105,7 @@ const addSubTask = (taskId) => {
 };
 
 const markAsCompleted = (taskId) => {
+  console.log(projectJsonUrl.value);
   emit('mark-as-completed', taskId);
 };
 
@@ -115,9 +120,9 @@ const updateProject = async () => {
     name: projectStore.name,
     components: props.components
   };
-
+  
   try {
-    const response = await axios.post('http://your-flask-app-url/update_project', payload, {
+    const response = await axios.post('http://localhost:5001/update_project', payload, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -127,6 +132,8 @@ const updateProject = async () => {
     console.error("Error updating project:", error);
   }
 };
+
+
 </script>
 
 <style>

@@ -9,6 +9,10 @@ def create_project():
 def get_projects():
     return Project().get_projects()
 
+@app.route('/get_project_by_id', methods=['GET'])
+def get_project_by_id():
+    return Project().get_project_by_id()
+
 @app.route('/update_project', methods=['PATCH'])
 def update_project():
     return Project().update_project()
