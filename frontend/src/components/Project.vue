@@ -12,47 +12,43 @@
   
       <div class="chart-container">
         <!-- To test replace the link with components -->
-         <!-- https://raw.githubusercontent.com/bumbeishvili/sample-data/main/sample.json -->
         <vue3-org-chart minimap
                         @on-ready="initVue3OrgChart"
-                        :json=projectJsonUrl>
+                        :json=projectJsonUrl
+                        :key="chartKey">
           <template #node="{item, children, open, toggleChildren}">
             <div class="node-item justify-center relative" :class="{'active': open, 'passive' : !open }">
               <div class="temp-container">
-                <button @click="deleteTask(item.id)" class="absolute top-0 right-0 p-1 hover:bg-gray-200 rounded-full">
+                <button @click="deleteComponent(item)" class="absolute top-0 right-0 p-1 hover:bg-gray-200 rounded-full">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
-                <div class="text-center">{{item.name}}</div>
-                <div class="text-center">{{ item.description }}</div>
-                <div class="text-center">{{ item.is_completed }}</div>
-                <!-- Pretend there will be a list of sub tasks here -->
-                 
-                <div class="text-center">Sub Task 1 </div>
-                <div v-if="item.is_completed === 'false'" class="flex">
-                  <button @click="addSubTask(item.id)" class="mt-2 p-2 bg-blue-500 text-white rounded">Add Sub Task</button>
-                  <button @click="markAsCompleted(item.id)" class="mt-2 p-2 bg-green-500 text-white rounded">Mark as Completed</button>
+                <div ref="ComponentName"
+                     class="text-center font-bold text-xl"
+                     contenteditable="true"
+                     @input="onInput($event, item, 'name')"
+                     @blur="updateComponentName(item)">
+                  {{ item.name }}
                 </div>
-                <!-- <div v-else-if="item.is_completed === 'true'" class="flex items-center justify-center mt-2">
-                  <div class="p-2 bg-green-500 text-white rounded-full">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <button @click="undoCompletion(item)" class="ml-2 p-2 bg-zinc-700 text-white rounded hover:bg-gray-500">Undo</button>
-                </div> -->
+                <div ref="ComponentTasks"
+                     contenteditable="true"
+                     @input="onInput($event, item, 'tasks')"
+                     @blur="updateComponentTasks(item)">
+                  {{ item.tasks }}
+                </div>
+                <div v-if="item.is_completed === 'false'" class="flex space-x-2 mt-2 justify-center">
+                  <button @click="addComponent(item)" class="p-2 bg-green-600 text-white rounded">Add Task</button>
+                  <button @click="updateCompletionStatus(item)" class="p-2 bg-blue-600 text-white rounded">Completed</button>
+                </div>
                 <div v-else class="flex items-center justify-center mt-2">
                   <div class="p-2 bg-green-500 text-white rounded-full">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <button @click="undoCompletion(item)" class="ml-2 p-2 bg-zinc-700 text-white rounded hover:bg-gray-500">Undo</button>
+                  <button @click="updateCompletionStatus(item,)" class="ml-2 p-2 bg-gray-600 text-white rounded hover:bg-gray-500">Undo</button>
                 </div>
-                <!-- <div v-else>
-                  Cry my guy data is not formatted in to the right format
-                </div> -->
               </div>
             </div>
             <div style="text-align: center;">
@@ -73,44 +69,148 @@
   </template>
   
 <script setup>
-import { onBeforeMount, onMounted, ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useProjectStore } from "@/stores/project";
 import axios from "axios";
 
-const vocApi = ref(null);
-const projectJsonUrl = ref("");
-
 const initVue3OrgChart = ({ api }) => {
   vocApi.value = api;
 }
-const authStore = useAuthStore();
-const projectStore = useProjectStore();
-
 const props = defineProps({
   components: {
     type: Array,
     default: () => []
   },
 })
+const vocApi = ref(null);
+const projectJsonUrl = ref("");
+const authStore = useAuthStore();
+const projectStore = useProjectStore();
+const ComponentName = ref(null);
+const ComponentTasks = ref(null);
+const chartKey = ref(0);
 
-projectJsonUrl.value = `http://localhost:5001/get_project_by_id?user_id=${authStore.user._id}&project_id=${projectStore.project._id}`;
+onBeforeMount(() => {
+  projectJsonUrl.value = `http://localhost:5001/get_project_by_id?user_id=${authStore.user._id}&project_id=${projectStore.project._id}`;
+  // console.log(projectJsonUrl.value);
+});
 
-const deleteTask = (taskId) => {
-  emit('delete-task', taskId);
+// Helper function to generate payload
+const generatePayload = (componentId, additionalFields = {}) => {
+  return {
+    user_id: authStore.user._id, // Replace with actual user ID
+    project_id: projectStore.project._id, // Replace with actual project ID
+    component_id: componentId,
+    ...additionalFields
+  }
 };
 
-const addSubTask = (taskId) => {
-  emit('add-sub-task', taskId);
+// Generalized input handler
+const onInput = (event, item, field) => {
+  item[field] = event.target.innerText.trim();
+}
+
+// Update Component Name functions
+const updateComponentName = async (component) => {
+  const payload = generatePayload(component.id, { new_name: ComponentName.value.innerText.trim() });
+  try {
+    const response = await fetch('http://localhost:5001/update_component_name',{
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error("Error updating name:", error);
+  }
 };
 
-const markAsCompleted = (taskId) => {
-  console.log(projectJsonUrl.value);
-  emit('mark-as-completed', taskId);
+// Update Component Tasks functions
+const updateComponentTasks = async (component) => {
+  const payload = generatePayload(component.id, { new_tasks: ComponentTasks.value.innerText.trim() });
+  try {
+    const response = await fetch('http://localhost:5001/update_component_task',{
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error("Error updating task:", error);
+  }
 };
 
-const undoCompletion = (task) => {
-  emit('undo-completion', taskId);
+const deleteComponent = async (component) => {
+  const payload = generatePayload(component.id);
+  try {
+    const response = await fetch('http://localhost:5001/delete_component', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+    console.log(data);
+    chartKey.value += 1;
+  } catch (error) {
+    console.error("Error deleting component:", error)
+  }
+};
+
+// Add Component
+const addComponent = async (component) => {
+  const payload = {
+    user_id: authStore.user._id, // Replace with actual user ID
+    project_id: projectStore.project._id, // Replace with actual project ID
+    parent_id: component.id,
+  }
+  try  {
+    const response = await fetch('http://localhost:5001/add_component', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+    console.log(data);
+    chartKey.value += 1;
+  } catch(error) {
+    console.error("Error adding component:", error);
+  }
+}
+
+// Update Component Status (Completed/Not Completed)
+const updateCompletionStatus = async (component) => {
+  const newStatus = component.is_completed === 'false' ? 'true' : 'false';
+  const payload = generatePayload(component.id, { new_completion_status: newStatus });
+  try {
+    const response = await fetch('http://localhost:5001/update_component_completion_status', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+
+    const data = await response.json();
+    console.log(data);
+    chartKey.value += 1;
+  } catch (error) {
+    console.error("Error updating completion status:", error);
+  }
 };
 
 const updateProject = async () => {

@@ -9,6 +9,9 @@ export const useAuthStore = defineStore('auth', {
         setLoginStatus(status, user) {
             this.isLoggedIn = status
             this.user = user
+        },
+        updateUser(user) {
+            this.user = user
         }
     },
 })
