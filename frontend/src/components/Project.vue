@@ -13,27 +13,25 @@
       <div class="chart-container">
         <!-- To test replace the link with components -->
         <vue3-org-chart minimap
-                        @on-ready="initVue3OrgChart"
+                        @on-ready="handleChartReady"
                         :json=projectJsonUrl
                         :key="chartKey">
           <template #node="{item, children, open, toggleChildren}">
             <div class="node-item justify-center relative" :class="{'active': open, 'passive' : !open }">
               <div class="temp-container">
-                <button @click="deleteComponent(item)" class="absolute top-0 right-0 p-1 hover:bg-gray-200 rounded-full">
+                <button v-if="item.parentId !== ''" @click="deleteComponent(item)" class="absolute top-0 right-0 p-1 hover:bg-gray-200 rounded-full">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
                 <div ref="ComponentName"
                      class="text-center font-bold text-xl"
-                     contenteditable="true"
-                     @input="onInput($event, item, 'name')"
+                     contenteditable
                      @blur="updateComponentName(item)">
                   {{ item.name }}
                 </div>
                 <div ref="ComponentTasks"
-                     contenteditable="true"
-                     @input="onInput($event, item, 'tasks')"
+                     contenteditable
                      @blur="updateComponentTasks(item)">
                   {{ item.tasks }}
                 </div>
@@ -69,13 +67,18 @@
   </template>
   
 <script setup>
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount, ref, nextTick } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { useProjectStore } from "@/stores/project";
 import axios from "axios";
 
 const initVue3OrgChart = ({ api }) => {
   vocApi.value = api;
+}
+const handleChartReady = ({ api }) => {
+  initVue3OrgChart({ api });
+  vocApi.value.zoomReset();
+  vocApi.value.expandAll();
 }
 const props = defineProps({
   components: {
@@ -105,11 +108,6 @@ const generatePayload = (componentId, additionalFields = {}) => {
     ...additionalFields
   }
 };
-
-// Generalized input handler
-const onInput = (event, item, field) => {
-  item[field] = event.target.innerText.trim();
-}
 
 // Update Component Name functions
 const updateComponentName = async (component) => {
@@ -213,27 +211,25 @@ const updateCompletionStatus = async (component) => {
   }
 };
 
-const updateProject = async () => {
-  const payload = {
-    user_id: authStore.user._id, // Replace with actual user ID
-    project_id: projectStore._id, // Replace with actual project ID
-    name: projectStore.name,
-    components: props.components
-  };
+// const updateProject = async () => {
+//   const payload = {
+//     user_id: authStore.user._id, // Replace with actual user ID
+//     project_id: projectStore._id, // Replace with actual project ID
+//     name: projectStore.name,
+//     components: props.components
+//   };
   
-  try {
-    const response = await axios.post('http://localhost:5001/update_project', payload, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    console.log("Project updated successfully:", response.data);
-  } catch (error) {
-    console.error("Error updating project:", error);
-  }
-};
-
-
+//   try {
+//     const response = await axios.post('http://localhost:5001/update_project', payload, {
+//       headers: {
+//         'Content-Type': 'application/json'
+//       }
+//     });
+//     console.log("Project updated successfully:", response.data);
+//   } catch (error) {
+//     console.error("Error updating project:", error);
+//   }
+// };
 </script>
 
 <style>

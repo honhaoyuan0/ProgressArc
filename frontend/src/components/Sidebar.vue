@@ -9,21 +9,23 @@
       <ul v-else>
         <li v-for="(project, index) in projects" :key="index" class="mb-2 flex">
             <!-- CRUD function to be determine -->
-          <button @click="goToProject(project)" 
-                  class="project_selection_button w-full text-left p-2 hover:bg-gray-700 rounded text-lg" 
-                  :contenteditable="editingIndex === index" @blur="updateProjectName(project._id, $event)" 
-                  @keydown="handleKeydown($event)"
-                  @input="handleInput(project, $event)"
+          <button @mousedown="goToProject(project)"
+                  @keydown.enter="handleEnterKey($event, project)"
+                  class="w-full text-left p-2 hover:bg-gray-700 rounded text-lg" 
                   style="word-break: break-word;">
-            <div>
+            <div  :ref="el => projectNameRefs[index] = el"
+                  :contenteditable="editingIndex === index" 
+                  @blur="updateProjectName(project._id, $event)" >      
               {{ project.name }}
-            </div> 
+            </div>
           </button>
+          <!-- Edit button -->
           <button @click="startEditing(index)" class="text-white-500 p-2 hover:text-white">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6 6M4 21h7l-7-7v7z" />
             </svg>
           </button>
+          <!-- Delete button -->
           <button @click="deleteProject(index)" class="text-white-500 p-2 hover:text-red-700">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h18M9 6v12m6-12v12M4 6l1-1h14l1 1M5 6h14v14H5z" />
@@ -50,6 +52,7 @@ const authStore = useAuthStore();
 const projectStore = useProjectStore();
 const emit = defineEmits(['selectProjects', 'deleteProject', 'updateProjectName']);
 const editingIndex = ref(null);
+const projectNameRefs = ref([]);
 
 const goToProject = (project) => {
   projectStore.setProject(project);
@@ -75,10 +78,26 @@ const deleteProject = async (index) => {
 const startEditing = async (index) => {
   editingIndex.value = index;
   await nextTick();
-  const projectNameElement = document.querySelector(".project_selection_button");
-  projectNameElement.focus();
+  const projectNameElement = projectNameRefs.value[index];
+  if (projectNameElement) {
+    projectNameElement.focus();
+  }
+  else {
+    console.error("Project name element not found");
+  }
   // console.log("Edit project name button pressed");
 }
+
+const handleEnterKey = (event, project) => {
+  if (event.shiftKey) {
+    // Allow Shift+Enter to add a newline
+    event.stopPropagation();
+  } else {
+    // Trigger goToProject on Enter key
+    event.preventDefault();
+    goToProject(project);
+  }
+};
 
 const updateProjectName = async (project_id, event) => {
   try {
@@ -98,14 +117,4 @@ const updateProjectName = async (project_id, event) => {
     console.error(error);
   }
 }
-
-const handleInput = (project, event) => {
-  project.name = event.target.innerText.trim();
-}
-
-const handleKeydown = (event) => {
-  if ((event.key === 'Enter' && event.shiftKey) || event.key === ' ') {
-    event.preventDefault();
-  }
-};
 </script>
