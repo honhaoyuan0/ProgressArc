@@ -74,6 +74,7 @@ const handleRegister = async () => {
     // <route to="/login" />;
   } catch (error) {
     console.error(error);
+    alert('Please ensure your email is provided in the correct format and your password is at least 8 characters long');
   }
 };
 </script>

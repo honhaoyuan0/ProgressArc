@@ -1,13 +1,12 @@
 <!-- Login component -->
 <template>
-  <div class="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+  <div class="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 bg-gray-400">
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+      <img class="mb-10 size-15" src="https://64.media.tumblr.com/c78f81fea60668f04193ad03b8104a9e/c4d7e7ace63a8a3c-1e/s1280x1920/a44175b4c168279d82f7795e7fa3665f455eec82.jpg" />
       <img class="mx-auto h-10 w-auto" src="https://cdn-icons-png.flaticon.com/512/1/1560.png" alt="[LOGO TODO]" />
       <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Sign in to your account</h2>
     </div>
-
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-      <!-- action="#" method="POST" -->
       <form class="space-y-6">
         <div>
           <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email address</label>

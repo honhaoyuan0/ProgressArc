@@ -12,6 +12,7 @@
 </template>
 
 <script setup>
+import { v4 as uuidv4 } from 'uuid';
 import { ref, watchEffect } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useProjectStore } from '@/stores/project';
@@ -26,7 +27,7 @@ const root_component = ref([
     "name": "New Task",
     "tasks": "Type in your task description here",
     "is_completed": "false",
-    "id": "1",
+    "id": uuidv4(),
     "parentId": "",
     "size": ""
   }

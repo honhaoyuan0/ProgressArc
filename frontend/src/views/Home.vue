@@ -29,6 +29,7 @@
       <Prompt class="transition-all duration-300" v-if="components.length == 0" @updateProjectList="Re_renderSidebar" :user="authStore.user"/>
       <Project v-else :components="components"/>
     </div>
+    <!-- If not logged in -->
     <BlurOverlay v-if="!authStore.isLoggedIn" />
   </div>
 </template>
