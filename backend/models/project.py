@@ -155,9 +155,8 @@ class Project:
             'status': 'failed',
             }), 404
 
-        new_component_id = str(len(project.get('components', [])) + 1)
         new_component_info = {
-            'id': new_component_id,
+            'id': uuid.uuid4().hex,
             'parentId': str(parent_id),
             'size': '',
             'name': 'New Task',

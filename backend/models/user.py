@@ -14,10 +14,26 @@ class User:
         if not request.is_json:
             return jsonify({'error': 'Unsupported Media Type, content type must be application/json'}), 415
 
+        email = request.json.get('email')
+        password = request.json.get('password')
+        
+        # Validate email and password
+        if not email or not password:
+            return jsonify({'error': 'Email and password are required', 'status': 'failed'}), 400
+
+        # Validate email format
+        email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+        if not re.match(email_regex, email):
+            return jsonify({'error': 'Invalid email format', 'status': 'failed'}), 400
+
+        # Validate password length
+        if len(password) < 8:
+            return jsonify({'error': 'Password must be at least 8 characters long', 'status': 'failed'}), 400
+        
         user = {
             '_id': uuid.uuid4().hex,
-            'email': request.json.get('email'),
-            'password': request.json.get('password')
+            'email': email,
+            'password': password
         }
 
         user['password'] = pbkdf2_sha256.encrypt(user['password'])
